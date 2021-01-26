@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - block:
+        - parted: device=/dev/sda unit=GiB
+          register: sdb_info
+        - debug:
+            msg: '{{ sdb_info.disk.size }}GB'
+- hosts: all
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: Distribution
+    debug:
+      msg: "{{ ansible_distribution }}"
+  - name: Distribution version
+    debug:
+      msg: "{{ ansible_distribution_version}}"
+  - hosts: all
+  become: yes
+  vars:
+    nic: all
+  tasks:
+    - name: MAC Address
+      debug:
+        msg: "{{ hostvars[inventory_hostname].ansible_default_ipv4.macaddress }}"
+    - name: network interfaces
+      debug:
+        msg: "{{ ansible_interfaces }}"
+    - name: list volume groups
+      debug: msg="echo volume groups is  {{ item.key }} has {{ item.value.free_g }}" 
+       with_dict: "{{ ansible_lvm.vgs }}"
